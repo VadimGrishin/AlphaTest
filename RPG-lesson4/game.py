@@ -11,21 +11,12 @@ while True:
         break
 print()
 
-while True:
-    hero_class = \
-        input('Выберите роль вашего персонажа: Человек, Маг, Орк, Эльф: \n').lower()
-    if hero_class == 'человек':
-        hero.update(roles['human'])
-    elif hero_class == 'маг':
-        hero.update(roles['mag'])
-    elif hero_class == 'орк':
-        hero.update(roles['ork'])
-    elif hero_class == 'эльф':
-        hero.update(roles['elf'])
-    else:
-        print('Ошибка. Попробуйте снова')
-        continue
-    break
+classes = [role for role in roles]
+class_names = [role['role_name'] for role in roles.values()]
+
+j = choice_view(class_names, 'Выберите класс персонажа')
+hero_class = classes[j]
+hero.update(roles[hero_class])
 
 WELCOME = \
     f"Здравствуй, {hero_class} {bright_blue}{hero['name']}{color_end}!\n" \
@@ -61,14 +52,15 @@ while hero['hp'] > 0 and not artifact:
     elif action.lower() == 'train':
         train()
     elif action.lower() == 'map':
-        map_maker()
+        game_map = ['@'] + [_ for _ in map_gen()]
+
         x = 0
         while x < 19:
-            map_redraw()
-            x = move(x)
+            map_redraw(game_map)
+            x = move(x, game_map)
             if x == -1:
                 break
-        map_redraw()
+        map_redraw(game_map)
         artifact = (x == 19)
         break
 

@@ -1,16 +1,47 @@
 from constants import *
-import random
+from random import sample, shuffle, randint, uniform
+import itertools
 
 
 def qube6():
-    return random.randint(1, 6)
+    return randint(1, 6)
 
 
 def qube20():
-    return random.randint(1, 20)
+    return randint(1, 20)
+
 
 def history():
     say('LORE')
+
+
+def map_gen():
+    obj_places = sorted(sample(range(MAP_SIZE - 1), 9))
+
+    objs = list(range(9))
+    shuffle(objs)
+
+    i, j, = 0, 0
+
+    while i < MAP_SIZE - 1:
+        x = '_'
+        if j < 9 and i == obj_places[j]:
+            if objs[j] < 5:
+                x = str(objs[j])
+            else:
+                x = '$'
+
+            j += 1
+
+        i += 1
+        yield x
+
+
+def small_chest(n):
+
+    all_gifts = list(itertools.combinations(chest, n))
+
+    return sample(all_gifts, 1)[0]
 
 
 def pause():
@@ -182,7 +213,7 @@ def critical_kf(t):
 
 def map_maker():
     p = range(1, 19)
-    rr = random.sample(p, 9)
+    rr = sample(p, 9)
     for i, it in enumerate(rr):
         game_map[it] = i
     for i, it in enumerate(game_map):
@@ -194,11 +225,11 @@ def map_maker():
     game_map[0] = '@'
 
 
-def map_redraw():
+def map_redraw(game_map):
     print(''.join(game_map))
 
 
-def move(x):
+def move(x, game_map):
     input('Ход - Enter')
     if game_map[x + 1] == '_':
         game_map[x] = '_'
@@ -227,18 +258,26 @@ def move(x):
 
 def iter_chest(h, ch):
 
-    j = random.randint(0, len(ch) - 1)
-    print('Выбрано сокровище: ' + ch[j])
-    if ch[j] == 'восстановить здоровье полностью':
-        h['hp'] = h['max_hp']
-    elif ch[j] == 'увеличить максимальное здоровье':
-        h['max_hp'] *= random.uniform(chest_ranges['max_hp']['min'], chest_ranges['max_hp']['max'])
-    elif ch[j] == 'увеличить урон':
-        h['damage'] *= random.uniform(chest_ranges['damage']['min'], chest_ranges['damage']['max'])
-    elif ch[j] == 'увеличить броню':
-        h['armor'] *= random.uniform(chest_ranges['armor']['min'], chest_ranges['armor']['max'])
-    ch.pop(j)
-    print(f'Остается в сундуке: {ch}')
+    n = round(randint(0, 20) / 20 * 3 + 0.45)  # спец преобразование:
+    #  n            0     1     2     3
+    #  вероятность  0.05  0.35  0.35  0.25
+
+    if n:
+        small_ch = small_chest(n)
+
+        j = choice_view(small_ch)
+
+        say('selected_treasure', small_ch[j])
+        if small_ch[j] == 'восстановить здоровье полностью':
+            h['hp'] = h['max_hp']
+        elif small_ch[j] == 'увеличить максимальное здоровье':
+            h['max_hp'] *= uniform(chest_ranges['max_hp']['min'], chest_ranges['max_hp']['max'])
+        elif small_ch[j] == 'увеличить урон':
+            h['damage'] *= uniform(chest_ranges['damage']['min'], chest_ranges['damage']['max'])
+        elif small_ch[j] == 'увеличить броню':
+            h['armor'] *= uniform(chest_ranges['armor']['min'], chest_ranges['armor']['max'])
+    else:
+        say('empty_chest')
 
 
 def do_chest(h, ch):
@@ -256,22 +295,24 @@ def do_chest(h, ch):
             if ch[j] == 'восстановить здоровье полностью':
                 h['hp'] = h['max_hp']
             elif ch[j] == 'увеличить максимальное здоровье':
-                h['max_hp'] *= random.uniform(chest_ranges['max_hp']['min'], chest_ranges['max_hp']['max'])
+                h['max_hp'] *= uniform(chest_ranges['max_hp']['min'], chest_ranges['max_hp']['max'])
             elif ch[j] == 'увеличить урон':
-                h['damage'] *= random.uniform(chest_ranges['damage']['min'], chest_ranges['damage']['max'])
+                h['damage'] *= uniform(chest_ranges['damage']['min'], chest_ranges['damage']['max'])
             elif ch[j] == 'увеличить броню':
-                h['armor'] *= random.uniform(chest_ranges['armor']['min'], chest_ranges['armor']['max'])
+                h['armor'] *= uniform(chest_ranges['armor']['min'], chest_ranges['armor']['max'])
             ch.pop(j)
 
 
-def choice_view(mp):
-    print('Выберите')
-    for i, item in enumerate(mp):
+def choice_view(menu_list, ask='Выберите'):
+
+    print(ask)
+    for i, item in enumerate(menu_list):
         print(f'{i} - {item}')
 
     while True:
         i = input('')
         if i.isdigit():
             i = int(i)
-            if i < len(mp):
+            if i < len(menu_list):
                 return i
+
