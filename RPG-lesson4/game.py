@@ -18,18 +18,11 @@ j = choice_view(class_names, 'Выберите класс персонажа')
 hero_class = classes[j]
 hero.update(roles[hero_class])
 
-WELCOME = \
-    f"Здравствуй, {hero_class} {bright_blue}{hero['name']}{color_end}!\n" \
-    f"Меня зовут {bright_blue}Дэкой{color_end}. " \
-    "Даже не знаю как ты тут оказался, но мы тебе рады. " \
-    "Я расскажу тебе о наших краях. "
-
-print()
-
 train_damage = hero['damage']
 
 # Вступление
-print(WELCOME)
+say('welcome', **hero)
+# print(WELCOME)
 history()
 menu()
 
