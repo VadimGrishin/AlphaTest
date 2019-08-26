@@ -26,7 +26,7 @@ def map_gen():
 
     while i < MAP_SIZE - 1:
         x = '_'
-        if j < 9 and i == obj_places[j]:
+        if j < n_obj and i == obj_places[j]:
             if objs[j] < len(enemies):
                 x = str(objs[j])
             else:
