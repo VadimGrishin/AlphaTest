@@ -11,6 +11,7 @@ hero = {}
 artifact = False
 
 MAP_SIZE = 20
+N_CHEST_ON_MAP = 4
 
 commands = ('Start', 'Stats', 'Help', 'Exit', 'Map')
 

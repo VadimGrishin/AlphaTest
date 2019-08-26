@@ -16,9 +16,10 @@ def history():
 
 
 def map_gen():
-    obj_places = sorted(sample(range(MAP_SIZE - 1), 9))
+    n_obj = len(enemies) + N_CHEST_ON_MAP
+    obj_places = sorted(sample(range(MAP_SIZE - 1), n_obj))
 
-    objs = list(range(9))
+    objs = list(range(n_obj))
     shuffle(objs)
 
     i, j, = 0, 0
@@ -26,7 +27,7 @@ def map_gen():
     while i < MAP_SIZE - 1:
         x = '_'
         if j < 9 and i == obj_places[j]:
-            if objs[j] < 5:
+            if objs[j] < len(enemies):
                 x = str(objs[j])
             else:
                 x = '$'
@@ -209,20 +210,6 @@ def critical_kf(t):
     elif t in range(1, 3):
         return 0
     return 1
-
-
-def map_maker():
-    p = range(1, 19)
-    rr = sample(p, 9)
-    for i, it in enumerate(rr):
-        game_map[it] = i
-    for i, it in enumerate(game_map):
-        if it != '_' and it > 4:
-            game_map[i] = '$'
-    for i, it in enumerate(game_map):
-        if type(it) == int:
-            game_map[i] = str(it)
-    game_map[0] = '@'
 
 
 def map_redraw(game_map):
