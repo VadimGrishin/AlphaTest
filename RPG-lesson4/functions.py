@@ -233,8 +233,8 @@ def move(x, game_map):
         print(hero)
         print(enemies[int(game_map[x + 1])])
         enemies[int(game_map[x + 1])]['hp'] = enemies[int(game_map[x + 1])]['default_hp']
-        k = fight(hero, enemies[int(game_map[x + 1])])
-        if is_alive(hero) and not k:
+        brk = fight(hero, enemies[int(game_map[x + 1])])
+        if is_alive(hero) and not brk:
             game_map[x] = '_'
             x += 1
             game_map[x] = '@'
