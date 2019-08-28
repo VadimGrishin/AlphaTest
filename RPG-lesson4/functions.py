@@ -217,17 +217,19 @@ def map_redraw(game_map):
 
 
 def move(x, game_map):
-    input('Ход - Enter')
-    if game_map[x + 1] == '_':
+    def step_fwd():
+        nonlocal x, game_map
         game_map[x] = '_'
         x += 1
         game_map[x] = '@'
+              
+    input('Ход - Enter')
+    if game_map[x + 1] == '_':
+        step_fwd()
 
     elif game_map[x + 1] == '$':
         iter_chest(hero, chest)
-        game_map[x] = '_'
-        x += 1
-        game_map[x] = '@'
+        step_fwd()
 
     elif game_map[x + 1].isdigit():
         print(hero)
@@ -235,9 +237,7 @@ def move(x, game_map):
         enemies[int(game_map[x + 1])]['hp'] = enemies[int(game_map[x + 1])]['default_hp']
         brk = fight(hero, enemies[int(game_map[x + 1])])
         if is_alive(hero) and not brk:
-            game_map[x] = '_'
-            x += 1
-            game_map[x] = '@'
+            step_fwd()
         else:
             x = -1
     return x
