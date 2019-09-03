@@ -253,6 +253,8 @@ def map_redraw(objs_on_map):
             x = objs_on_map.get((i, j))
 
             if x:
+                if x == 'A':
+                    x = '$'
                 s += x + ' '
             else:
                 s += '_ '
@@ -288,7 +290,8 @@ def move(p_cur, objs_on_map):
             iter_chest(hero, chest)
             step_fwd()
         elif obj == 'A':
-            pass
+            step_fwd()
+            p_cur = 'A'
             # ... Победа
         elif obj.isdigit():
             print(hero)

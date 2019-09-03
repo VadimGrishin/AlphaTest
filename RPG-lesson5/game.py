@@ -46,17 +46,20 @@ while hero['hp'] > 0 and not artifact:
         train()
     elif action.lower() == 'map':
         objs_on_map = dict([_ for _ in objs_gen()])
-        print(objs_on_map)
+
         p_cur = (0, 0)
         print(objs_on_map)
         x = 0
         while True:
             map_redraw(objs_on_map)
             p_cur = move(p_cur, objs_on_map)
-            if p_cur == -1:
+            print(p_cur)
+            #  print(objs_on_map[p_cur])
+            if p_cur == -1 or p_cur == 'A':
                 break
         map_redraw(objs_on_map)
-        artifact = (x == 19)
+        #  print(objs_on_map[p_cur])
+        artifact = (p_cur == 'A')
         break
 
     elif action.lower() == 'старт' \
