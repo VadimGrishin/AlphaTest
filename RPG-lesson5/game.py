@@ -18,6 +18,9 @@ j = choice_view(class_names, 'Выберите класс персонажа')
 hero_class = classes[j]
 hero.update(roles[hero_class])
 
+hero['found_arti'] = False
+hero['breaks_game'] = False
+
 train_damage = hero['damage']
 
 # Вступление
@@ -55,11 +58,10 @@ while hero['hp'] > 0 and not artifact:
             p_cur = move(p_cur, objs_on_map)
             print(p_cur)
             #  print(objs_on_map[p_cur])
-            if p_cur == -1 or p_cur == 'A':
+            if hero['breaks_game'] or hero['found_arti']:
                 break
         map_redraw(objs_on_map)
         #  print(objs_on_map[p_cur])
-        artifact = (p_cur == 'A')
         break
 
     elif action.lower() == 'старт' \
@@ -69,7 +71,7 @@ while hero['hp'] > 0 and not artifact:
 
 if hero['hp'] <= 0:
     print('Вы проиграли.')
-elif artifact:
+elif hero['found_arti']:
     print(
         'Вы получили артефакт "Великих". '
         'Теперь вы обладаете невероятной силой.\n'

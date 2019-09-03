@@ -252,7 +252,7 @@ def map_redraw(objs_on_map):
             x = objs_on_map.get((i, j))
 
             if x:
-                if x == 'A':
+                if x == 'A' and not hero['found_arti']:
                     x = '$'
                 s += x + ' '
             else:
@@ -266,7 +266,9 @@ def move(p_cur, objs_on_map):
         nonlocal p_cur, p_next, objs_on_map
         objs_on_map.pop(p_cur)
         p_cur = p_next
-        objs_on_map[p_cur] = '@'
+        if not hero['found_arti']:
+            #  герой "вытесняет" любой объект кроме артефакта
+            objs_on_map[p_cur] = '@'
 
     print('  w  ')
     print('a   d  - движения по карте')
@@ -291,18 +293,20 @@ def move(p_cur, objs_on_map):
             iter_chest(hero, chest)
             step_fwd()
         elif obj == 'A':
-            step_fwd()
-            p_cur = 'A'
             # ... Победа
+            hero['found_arti'] = True
+            step_fwd()
+
         elif obj.isdigit():
             print(hero)
             print(enemies[int(obj)])
             enemies[int(obj)]['hp'] = enemies[int(obj)]['default_hp']
-            brk = fight(hero, enemies[int(obj)])
-            if is_alive(hero) and not brk:
+            hero['breaks_game'] = fight(hero, enemies[int(obj)])
+            print('*****', hero['breaks_game'])
+            if hero['breaks_game']:
+                return p_cur
+            if is_alive(hero):
                 step_fwd()
-            else:
-                p_cur = -1
     else:
         if p_next[0] in range(M) and p_next[1] in range(N):
             step_fwd()
