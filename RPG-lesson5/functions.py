@@ -15,66 +15,27 @@ def history():
     say('LORE')
 
 
-def objs_gen():
-
-    n_obj = len(enemies) + N_CHEST_ON_MAP + 1
-
-    obj_places = sorted(sample(range(1, M * N - 1), n_obj))
-
-    objs = list(range(n_obj))
-    shuffle(objs)
-
-    yield [(0, 0), '@']
-
-    i, j, = 1, 0
-    map_len = M * N
-
-    while i < map_len:
-
-        if j < n_obj and i == obj_places[j]:
-
-            if objs[j] < len(enemies):
-                x = str(objs[j])
-            else:
-                x = '$'
-                if objs[j] == n_obj - 1:
-                    x = 'A'
-
-            yield ((i // N, i % N), x)
-            j += 1
-
-        i += 1
-
-
-
-def map_gen():
-    n_obj = len(enemies) + N_CHEST_ON_MAP
-    obj_places = sorted(sample(range(MAP_SIZE - 1), n_obj))
-
-    objs = list(range(n_obj))
-    shuffle(objs)
-
-    i, j, = 0, 0
-
-    while i < MAP_SIZE - 1:
-        x = '_'
-        if j < 9 and i == obj_places[j]:
-            if objs[j] < len(enemies):
-                x = str(objs[j])
-            else:
-                x = '$'
-
-            j += 1
-
-        i += 1
-        yield x
-
-
-def small_chest(n):
-
-    all_gifts = list(itertools.combinations(chest, n))
-
-    return sample(all_gifts, 1)[0]
+# def map_gen():
+#     n_obj = len(enemies) + N_CHEST_ON_MAP
+#     obj_places = sorted(sample(range(MAP_SIZE - 1), n_obj))
+#
+#     objs = list(range(n_obj))
+#     shuffle(objs)
+#
+#     i, j, = 0, 0
+#
+#     while i < MAP_SIZE - 1:
+#         x = '_'
+#         if j < 9 and i == obj_places[j]:
+#             if objs[j] < len(enemies):
+#                 x = str(objs[j])
+#             else:
+#                 x = '$'
+#
+#             j += 1
+#
+#         i += 1
+#         yield x
 
 
 def pause():
@@ -244,6 +205,44 @@ def critical_kf(t):
     return 1
 
 
+def objs_gen():
+
+    n_obj = len(enemies) + N_CHEST_ON_MAP + 1
+
+    obj_places = sorted(sample(range(1, M * N - 1), n_obj))
+
+    objs = list(range(n_obj))
+    shuffle(objs)
+
+    yield [(0, 0), '@']
+
+    i, j, = 1, 0
+    map_len = M * N
+
+    while i < map_len:
+
+        if j < n_obj and i == obj_places[j]:
+
+            if objs[j] < len(enemies):
+                x = str(objs[j])
+            else:
+                x = '$'
+                if objs[j] == n_obj - 1:
+                    x = 'A'
+
+            yield ((i // N, i % N), x)
+            j += 1
+
+        i += 1
+
+
+def small_chest(n):
+
+    all_gifts = list(itertools.combinations(chest, n))
+
+    return sample(all_gifts, 1)[0]
+
+
 def map_redraw(objs_on_map):
     print('\n' * 10)
     for i in range(M):
@@ -261,13 +260,13 @@ def map_redraw(objs_on_map):
         print(s)
     print(hero)
 
+
 def move(p_cur, objs_on_map):
     def step_fwd():
         nonlocal p_cur, p_next, objs_on_map
         objs_on_map.pop(p_cur)
         p_cur = p_next
         objs_on_map[p_cur] = '@'
-
 
     print('  w  ')
     print('a   d  - движения по карте')
@@ -282,6 +281,8 @@ def move(p_cur, objs_on_map):
         p_next = (p_cur[0] - 1, p_cur[1])
     elif mv == 's':
         p_next = (p_cur[0] + 1, p_cur[1])
+    else:
+        p_next = p_cur
 
     obj = objs_on_map.get(p_next)
 
@@ -331,29 +332,30 @@ def iter_chest(h, ch):
             h['armor'] *= uniform(chest_ranges['armor']['min'], chest_ranges['armor']['max'])
     else:
         say('empty_chest')
+        input()
 
 
-def do_chest(h, ch):
-    print(
-        'Вам открылся сундук "Великих". '
-        'Выберите награду.')
-
-    if len(ch) == 0:
-        print('Сундук пуст.\n')
-
-    else:
-        j = choice_view(ch)
-        if ch[j] != 'оставить на следующий раз':
-
-            if ch[j] == 'восстановить здоровье полностью':
-                h['hp'] = h['max_hp']
-            elif ch[j] == 'увеличить максимальное здоровье':
-                h['max_hp'] *= uniform(chest_ranges['max_hp']['min'], chest_ranges['max_hp']['max'])
-            elif ch[j] == 'увеличить урон':
-                h['damage'] *= uniform(chest_ranges['damage']['min'], chest_ranges['damage']['max'])
-            elif ch[j] == 'увеличить броню':
-                h['armor'] *= uniform(chest_ranges['armor']['min'], chest_ranges['armor']['max'])
-            ch.pop(j)
+# def do_chest(h, ch):
+#     print(
+#         'Вам открылся сундук "Великих". '
+#         'Выберите награду.')
+#
+#     if len(ch) == 0:
+#         print('Сундук пуст.\n')
+#
+#     else:
+#         j = choice_view(ch)
+#         if ch[j] != 'оставить на следующий раз':
+#
+#             if ch[j] == 'восстановить здоровье полностью':
+#                 h['hp'] = h['max_hp']
+#             elif ch[j] == 'увеличить максимальное здоровье':
+#                 h['max_hp'] *= uniform(chest_ranges['max_hp']['min'], chest_ranges['max_hp']['max'])
+#             elif ch[j] == 'увеличить урон':
+#                 h['damage'] *= uniform(chest_ranges['damage']['min'], chest_ranges['damage']['max'])
+#             elif ch[j] == 'увеличить броню':
+#                 h['armor'] *= uniform(chest_ranges['armor']['min'], chest_ranges['armor']['max'])
+#             ch.pop(j)
 
 
 def choice_view(menu_list, ask='Выберите'):
