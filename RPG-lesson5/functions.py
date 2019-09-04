@@ -1,6 +1,7 @@
 from constants import *
 from random import sample, shuffle, randint, uniform
 import itertools
+import os
 
 
 def qube6():
@@ -13,29 +14,6 @@ def qube20():
 
 def history():
     say('LORE')
-
-
-# def map_gen():
-#     n_obj = len(enemies) + N_CHEST_ON_MAP
-#     obj_places = sorted(sample(range(MAP_SIZE - 1), n_obj))
-#
-#     objs = list(range(n_obj))
-#     shuffle(objs)
-#
-#     i, j, = 0, 0
-#
-#     while i < MAP_SIZE - 1:
-#         x = '_'
-#         if j < 9 and i == obj_places[j]:
-#             if objs[j] < len(enemies):
-#                 x = str(objs[j])
-#             else:
-#                 x = '$'
-#
-#             j += 1
-#
-#         i += 1
-#         yield x
 
 
 def pause():
@@ -236,6 +214,13 @@ def objs_gen():
         i += 1
 
 
+def clear_fog(p_cur):
+    for i in range(-1, 2):
+        for j in range(-1, 2):
+            if p_cur[0] + i in range(M) and p_cur[1] + j in range(N):
+                fog[p_cur[0] + i][p_cur[1] + j] = ''
+
+
 def small_chest(n):
 
     all_gifts = list(itertools.combinations(chest, n))
@@ -253,12 +238,20 @@ def map_redraw(objs_on_map):
 
             if x:
                 if x == 'A' and not hero['found_arti']:
+                    #  скрываем артефакт, пока он не найден
                     x = '$'
-                s += x + ' '
+
             else:
-                s += '_ '
+                x = '_'
+
+            if fog[i][j]:
+                x = '~'
+
+            s += x + ' '
+
         print(s)
-    print(hero)
+
+    stats(hero)
 
 
 def move(p_cur, objs_on_map):
@@ -302,7 +295,7 @@ def move(p_cur, objs_on_map):
             print(enemies[int(obj)])
             enemies[int(obj)]['hp'] = enemies[int(obj)]['default_hp']
             hero['breaks_game'] = fight(hero, enemies[int(obj)])
-            print('*****', hero['breaks_game'])
+
             if hero['breaks_game']:
                 return p_cur
             if is_alive(hero):
@@ -337,29 +330,6 @@ def iter_chest(h, ch):
     else:
         say('empty_chest')
         input()
-
-
-# def do_chest(h, ch):
-#     print(
-#         'Вам открылся сундук "Великих". '
-#         'Выберите награду.')
-#
-#     if len(ch) == 0:
-#         print('Сундук пуст.\n')
-#
-#     else:
-#         j = choice_view(ch)
-#         if ch[j] != 'оставить на следующий раз':
-#
-#             if ch[j] == 'восстановить здоровье полностью':
-#                 h['hp'] = h['max_hp']
-#             elif ch[j] == 'увеличить максимальное здоровье':
-#                 h['max_hp'] *= uniform(chest_ranges['max_hp']['min'], chest_ranges['max_hp']['max'])
-#             elif ch[j] == 'увеличить урон':
-#                 h['damage'] *= uniform(chest_ranges['damage']['min'], chest_ranges['damage']['max'])
-#             elif ch[j] == 'увеличить броню':
-#                 h['armor'] *= uniform(chest_ranges['armor']['min'], chest_ranges['armor']['max'])
-#             ch.pop(j)
 
 
 def choice_view(menu_list, ask='Выберите'):

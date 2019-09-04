@@ -51,31 +51,37 @@ while hero['hp'] > 0 and not artifact:
         objs_on_map = dict([_ for _ in objs_gen()])
 
         p_cur = (0, 0)
-        print(objs_on_map)
+        clear_fog(p_cur)
+
+        print('Для отладки', objs_on_map)
         x = 0
         while True:
             map_redraw(objs_on_map)
             p_cur = move(p_cur, objs_on_map)
-            print(p_cur)
-            #  print(objs_on_map[p_cur])
+            clear_fog(p_cur)
+
             if hero['breaks_game'] or hero['found_arti']:
                 break
         map_redraw(objs_on_map)
-        #  print(objs_on_map[p_cur])
+
+    if hero['hp'] <= 0:
+
+        save_request = input('Вы проиграли\n Сохранить состояние? y/n')
+
+        if save_request == 'y':
+            print('сохраняем...')
+            #  n = get_last_sv_nmb() + 1
+
+    elif hero['found_arti']:
+        print(
+            'Вы получили артефакт "Великих". '
+            'Теперь вы обладаете невероятной силой.\n'
+            'Используйте её на восстановление справедливости!')
         break
 
-    elif action.lower() == 'старт' \
-            or action.lower() == 'start':
+    elif hero['breaks_game']:
+        save_request = input('Вы прервали игру\n Сохранить состояние? y/n')
 
-        artifact = start(hero, enemies)
-
-if hero['hp'] <= 0:
-    print('Вы проиграли.')
-elif hero['found_arti']:
-    print(
-        'Вы получили артефакт "Великих". '
-        'Теперь вы обладаете невероятной силой.\n'
-        'Используйте её на восстановление справедливости!')
-else:
-
-    print('Вы прервали игру\n')
+        if save_request == 'y':
+            print('сохраняем...')
+            #  n = get_last_sv_nmb() + 1

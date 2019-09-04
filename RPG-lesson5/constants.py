@@ -16,6 +16,8 @@ N_CHEST_ON_MAP = 4
 M = 5
 N = 8
 
+fog = [['~' for _ in range(N)] for _ in range(M)]
+
 commands = ('Start', 'Stats', 'Help', 'Exit', 'Map')
 
 commands_desc = \
