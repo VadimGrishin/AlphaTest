@@ -67,6 +67,7 @@ while hero['hp'] > 0 and not artifact:
 
     elif action.lower() == 'save':
         save(objs_on_map, hero)
+        hero['breaks_game'] = False
 
     elif action.lower() == 'load':
         hero, M, N, objs_on_map = load()
@@ -78,6 +79,7 @@ while hero['hp'] > 0 and not artifact:
 
     elif action.lower() == 'delete':
         delete()
+        hero['breaks_game'] = False
 
     if hero['hp'] <= 0:
 
