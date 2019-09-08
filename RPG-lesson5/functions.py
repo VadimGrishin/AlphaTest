@@ -1,7 +1,6 @@
 from constants import *
 from random import sample, shuffle, randint, uniform
-import itertools
-import os
+import itertools, os, yaml
 
 
 def qube6():
@@ -20,28 +19,28 @@ def pause():
     input('Нажмите Enter')
 
 
-def train():
+def train(h):
     print(INTRO)
     agree = input('Enter - Да / Другая клавиша - Нет: ')
 
     if agree == '':
         print('Введи параметры соперника')
         instructor['hp'] = int(input('Здоровье: '))
-        hero['damage'] = int(input('На сколько ты силён: '))
+        h['damage'] = int(input('На сколько ты силён: '))
         print(
             f'Здоровье врага - {instructor["hp"]}\n'
-            f'Ваше здоровье - {hero["hp"]}\n')
-        if instructor["hp"] < hero['damage'] * 4:
-            hero['damage'] = instructor["hp"] / 4
+            f'Ваше здоровье - {h["hp"]}\n')
+        if instructor["hp"] < h['damage'] * 4:
+            h['damage'] = instructor["hp"] / 4
 
     while instructor["hp"] > 0:
         input('Нанести удар - Enter')
-        instructor["hp"] -= hero['damage']
+        instructor["hp"] -= h['damage']
         print('Великолепный удар:\n'
               f'Здоровье врага - {instructor["hp"]}\n'
-              f'Ваше здоровье - {hero["hp"]}\n')
+              f'Ваше здоровье - {h["hp"]}\n')
 
-    print(f'Отличный бой, {hero["name"]}. Ты победил!')
+    print(f'Отличный бой, {h["name"]}. Ты победил!')
 
 
 def is_alive(person):
@@ -140,7 +139,7 @@ def fight(h, e):
             is_break = True
             for (key, val) in roles.items():
                 if val['role_name'] == hero['role_name']:
-                    hero.update(roles[key])
+                    h.update(roles[key])
             break
         fight_round(h, e, x)
         if not is_alive(e):
@@ -150,6 +149,8 @@ def fight(h, e):
 
 
 def fight_round(h, e, x):
+    print(h)
+    print(e)
     #  удар героя
     y = qube6()
     hit_hero = h['damage'] * move_rules[x]["damage_kf"] + y - e['armor']
@@ -160,7 +161,8 @@ def fight_round(h, e, x):
         e['hp'] -= hit_hero
         if not is_alive(e):
             return
-
+    print(h)
+    print(e)
     #  удар врага
     y = qube6()
     hit_enemy = e['damage'] - h['armor'] * move_rules[x]["armor_kf"] + y
@@ -168,11 +170,12 @@ def fight_round(h, e, x):
     hit_enemy *= critical_kf(qube20())
 
     if hit_enemy >= 0:
-        hero['hp'] -= hit_enemy
-
+        h['hp'] -= hit_enemy
+    print(h)
+    print(e)
     if is_alive(e):
         print(f'Великолепный удар: Здоровье врага - {bright_blue}{e["hp"]}{color_end}, '
-              f'Ваше здоровье - {bright_blue}{hero["hp"]}{color_end}')
+              f'Ваше здоровье - {bright_blue}{h["hp"]}{color_end}')
 
 
 def critical_kf(t):
@@ -221,14 +224,15 @@ def clear_fog(p_cur):
                 fog[p_cur[0] + i][p_cur[1] + j] = ''
 
 
-def small_chest(n):
+def small_chest(n, ch):
 
-    all_gifts = list(itertools.combinations(chest, n))
+    all_gifts = list(itertools.combinations(ch, n))
 
     return sample(all_gifts, 1)[0]
 
 
-def map_redraw(objs_on_map):
+def map_redraw(objs_on_map, h):
+
     print('\n' * 10)
     for i in range(M):
 
@@ -237,7 +241,7 @@ def map_redraw(objs_on_map):
             x = objs_on_map.get((i, j))
 
             if x:
-                if x == 'A' and not hero['found_arti']:
+                if x == 'A' and not h['found_arti']:
                     #  скрываем артефакт, пока он не найден
                     x = '$'
 
@@ -251,15 +255,15 @@ def map_redraw(objs_on_map):
 
         print(s)
 
-    stats(hero)
+    stats(h)
 
 
-def move(p_cur, objs_on_map):
+def move(p_cur, objs_on_map, h):
     def step_fwd():
         nonlocal p_cur, p_next, objs_on_map
         objs_on_map.pop(p_cur)
         p_cur = p_next
-        if not hero['found_arti']:
+        if not h['found_arti']:
             #  герой "вытесняет" любой объект кроме артефакта
             objs_on_map[p_cur] = '@'
 
@@ -283,22 +287,20 @@ def move(p_cur, objs_on_map):
 
     if obj:
         if obj == '$':
-            iter_chest(hero, chest)
+            iter_chest(h, chest)
             step_fwd()
         elif obj == 'A':
             # ... Победа
-            hero['found_arti'] = True
+            h['found_arti'] = True
             step_fwd()
 
         elif obj.isdigit():
-            print(hero)
-            print(enemies[int(obj)])
             enemies[int(obj)]['hp'] = enemies[int(obj)]['default_hp']
-            hero['breaks_game'] = fight(hero, enemies[int(obj)])
+            h['breaks_game'] = fight(h, enemies[int(obj)])
 
-            if hero['breaks_game']:
+            if h['breaks_game']:
                 return p_cur
-            if is_alive(hero):
+            if is_alive(h):
                 step_fwd()
     else:
         if p_next[0] in range(M) and p_next[1] in range(N):
@@ -314,7 +316,7 @@ def iter_chest(h, ch):
     #  вероятность  0.05  0.35  0.35  0.25
 
     if n:
-        small_ch = small_chest(n)
+        small_ch = small_chest(n, ch)
 
         j = choice_view(small_ch)
 
@@ -345,3 +347,76 @@ def choice_view(menu_list, ask='Выберите'):
             if i < len(menu_list):
                 return i
 
+
+def get_last_sv_nmb(lst):
+    nmb = 0
+    ls = list(filter(lambda x: 'save_map_' in x, lst))
+    ls = sorted(list(map(lambda x: int(x.replace('save_map_', '').replace('.txt', '')), ls)))
+    if ls:
+        nmb = ls[-1]
+    return nmb
+
+
+def sort_sv_fn(lst):
+    ls = list(filter(lambda x: 'save_map_' in x, lst))
+    lsn = list(map(lambda x: int(x.replace('save_map_', '').replace('.txt', '')), ls))
+
+    l = sorted([[ls[i], lsn[i]] for i in range(len(ls))], key=lambda x: x[1])
+    l = [it + [i + 1] for i, it in enumerate(l)]
+
+    return l
+
+
+def rearrange_savings(saving_list):
+
+    for it in saving_list:
+        if it[1] != it[2]:
+            os.rename(f'data/save_map_{it[1]}.txt', f'data/save_map_{it[2]}.txt')
+            os.rename(f'data/save_person_{it[1]}.txt', f'data/save_person_{it[2]}.txt')
+
+
+def save(objs_on_map, h):
+
+    saving_list = sort_sv_fn(os.listdir('data'))
+    rearrange_savings(saving_list)
+    n = get_last_sv_nmb(os.listdir('data')) + 1
+
+    with open(f"data/save_map_{n}.txt", "w") as write_file:
+        yaml.dump({'M': M, 'N': N, 'objs_on_map': objs_on_map}, write_file)
+
+    with open(f"data/save_person_{n}.txt", "w") as write_file:
+        yaml.dump(h, write_file)
+
+
+def save_list4menu():
+    saving_list = sort_sv_fn(os.listdir('data'))
+    rearrange_savings(saving_list)
+    saving_list = sort_sv_fn(os.listdir('data'))
+
+    return [f'save_{it[1]}' for it in saving_list]
+
+
+def unzip_map(M, N, objs_on_map):
+
+    return M, N, objs_on_map
+
+
+def load():
+    j = choice_view(save_list4menu(), "Выберите сохранение для загрузки")
+
+    with open(f"data/save_map_{j + 1}.txt", "r") as read_file:
+        x = yaml.load(read_file, Loader=yaml.FullLoader)
+
+    M, N, objs_on_map = unzip_map(**x)
+
+    with open(f"data/save_person_{j + 1}.txt", "r") as read_file:
+        h = yaml.load(read_file, Loader=yaml.FullLoader)
+
+    return h, M, N, objs_on_map
+
+
+def delete():
+    j = choice_view(save_list4menu(), "Выберите сохранение для удаления")
+
+    os.remove(f"data/save_map_{j + 1}.txt")
+    os.remove(f"data/save_person_{j + 1}.txt")

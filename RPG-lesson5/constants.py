@@ -18,7 +18,7 @@ N = 8
 
 fog = [['~' for _ in range(N)] for _ in range(M)]
 
-commands = ('Start', 'Stats', 'Help', 'Exit', 'Map')
+commands = ('Start', 'Stats', 'Help', 'Exit', 'Map', 'Save', 'Load', 'Delete')
 
 commands_desc = \
     (
@@ -26,7 +26,10 @@ commands_desc = \
         'Статистика',
         'Помощь',
         'Выход',
-        'Пройти коридор испытаний'
+        'Пройти коридор испытаний',
+        'Сохранить игру',
+        'Выбрать и загрузить сохранение',
+        'Выбрать и удалить сохранение'
      )
 roles = {
     'human': {

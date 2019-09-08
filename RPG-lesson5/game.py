@@ -29,6 +29,11 @@ say('welcome', **hero)
 history()
 menu()
 
+objs_on_map = dict([_ for _ in objs_gen()])
+
+p_cur = (0, 0)
+clear_fog(p_cur)
+
 # Базовый цикл
 while hero['hp'] > 0 and not artifact:
     action = \
@@ -48,21 +53,31 @@ while hero['hp'] > 0 and not artifact:
     elif action.lower() == 'train':
         train()
     elif action.lower() == 'map':
-        objs_on_map = dict([_ for _ in objs_gen()])
-
-        p_cur = (0, 0)
-        clear_fog(p_cur)
 
         print('Для отладки', objs_on_map)
         x = 0
         while True:
-            map_redraw(objs_on_map)
-            p_cur = move(p_cur, objs_on_map)
+            map_redraw(objs_on_map, hero)
+            p_cur = move(p_cur, objs_on_map, hero)
             clear_fog(p_cur)
 
             if hero['breaks_game'] or hero['found_arti']:
                 break
-        map_redraw(objs_on_map)
+        map_redraw(objs_on_map, hero)
+
+    elif action.lower() == 'save':
+        save(objs_on_map, hero)
+
+    elif action.lower() == 'load':
+        hero, M, N, objs_on_map = load()
+        for k, v in objs_on_map.items():
+            if v == '@':
+                p_cur = k
+                break
+        hero['breaks_game'] = False
+
+    elif action.lower() == 'delete':
+        delete()
 
     if hero['hp'] <= 0:
 
@@ -84,4 +99,4 @@ while hero['hp'] > 0 and not artifact:
 
         if save_request == 'y':
             print('сохраняем...')
-            #  n = get_last_sv_nmb() + 1
+            save(objs_on_map, hero)  #  f'save_objs_{n}.txt'
